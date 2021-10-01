@@ -16,6 +16,30 @@ let canvas;
 let renderer;
 let mainOBJ;
 
+function countPixel() {
+  let size = renderer.domElement;
+  let width = size.width;
+  let height = size.height
+  let gl = canvas.getContext('webgl2', { preserveDrawingBuffer: true });
+  let pixels = new Uint8Array(width * height * 4);
+  gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+  let imageData = new ImageData(new Uint8ClampedArray(pixels), width, height);
+
+  const allPixal = imageData.data.length/4;
+  let blackPixal = 0
+
+  for (let index = 0; index < imageData.data.length; index += 4) {
+    const rgba = [imageData.data[index],
+    imageData.data[index + 1],
+    imageData.data[index + 2],
+    (imageData.data[index + 3] / 255)];
+    if(rgba[0] == 0 && rgba[1] == 0 && rgba[2] == 0)
+      blackPixal++;
+  }
+
+  console.log(blackPixal, allPixal, blackPixal/allPixal)
+}
+
 function addLight() {
   const color = 0xFFFFFF;
   const intensity = 1;
@@ -82,6 +106,7 @@ function render() {
   }
   animation();
   renderer.render(scene, camera);
+  countPixel();
   requestAnimationFrame(render);
 }
 
@@ -102,7 +127,7 @@ function main() {
     obj.scale.x = obj.scale.y = obj.scale.z = caculateScale(obj);
     scene.add(obj);
   });
-
+  countPixel();
   requestAnimationFrame(render);
 }
 
